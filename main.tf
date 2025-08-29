@@ -10,6 +10,10 @@ terraform {
       source  = "hashicorp/archive"
       version = "~> 2.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -98,8 +102,9 @@ resource "aws_dynamodb_table" "coaches" {
   }
 
   global_secondary_index {
-    name     = "location-index"
-    hash_key = "location"
+    name               = "location-index"
+    hash_key           = "location"
+    projection_type    = "ALL"
   }
 
   tags = {
