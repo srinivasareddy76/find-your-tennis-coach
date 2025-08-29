@@ -218,7 +218,7 @@ output "s3_website_url" {
 
 output "api_gateway_url" {
   description = "URL of the API Gateway"
-  value       = aws_api_gateway_rest_api.tennis_coach_api.execution_arn
+  value       = aws_api_gateway_deployment.tennis_coach_deployment.invoke_url
 }
 
 output "dynamodb_table_name" {
