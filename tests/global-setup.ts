@@ -6,96 +6,41 @@ import { chromium, FullConfig } from '@playwright/test';
 import axios from 'axios';
 
 /**
- * Global setup for Playwright tests
- * Validates API endpoints and prepares test environment
+ * Simplified global setup for frontend-only tests
+ * Basic connectivity check without API dependencies
  */
 async function globalSetup(config: FullConfig) {
-  console.log('🚀 Starting global setup for Find Your Tennis Coach tests...');
+  console.log('🚀 Starting frontend test setup...');
   
   const baseURL = process.env.BASE_URL;
   if (!baseURL) {
-    throw new Error('BASE_URL environment variable is required');
+    console.log('⚠️  No BASE_URL set, using default from config');
+    return;
   }
 
-  console.log(`📍 Testing against: ${baseURL}`);
+  console.log(`📍 Testing frontend at: ${baseURL}`);
 
-  // Test API connectivity
+  // Simple frontend connectivity check
   try {
-    console.log('🔍 Checking API connectivity...');
+    console.log('🌐 Checking frontend accessibility...');
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
     
-    // Check if this is demo mode (JSONPlaceholder)
-    const isDemoMode = baseURL.includes('jsonplaceholder.typicode.com');
-    const testEndpoint = isDemoMode ? `${baseURL}/posts/1` : `${baseURL}/coaches`;
-    
-    const response = await axios.get(testEndpoint, {
-      timeout: 30000,
-      validateStatus: (status) => status < 500 // Accept 4xx but not 5xx
+    await page.goto(baseURL, { 
+      waitUntil: 'domcontentloaded',
+      timeout: 30000 
     });
     
-    if (response.status === 200) {
-      console.log('✅ API is responding correctly');
-      if (isDemoMode) {
-        console.log('📊 Demo mode: Using JSONPlaceholder API');
-      } else {
-        console.log(`📊 Found ${response.data.length} coaches in database`);
-      }
-    } else {
-      console.log(`⚠️  API returned status ${response.status}, but continuing tests...`);
-    }
+    const title = await page.title();
+    console.log(`✅ Frontend accessible - Title: "${title}"`);
+    
+    await browser.close();
   } catch (error) {
-    console.log('⚠️  API connectivity check failed, but continuing tests...');
+    console.log('⚠️  Frontend check failed, but continuing tests...');
     console.log(`   Error: ${error.message}`);
   }
 
-  // Test frontend connectivity (skip for demo mode)
-  const isDemoMode = baseURL.includes('jsonplaceholder.typicode.com');
-  
-  if (!isDemoMode) {
-    try {
-      console.log('🌐 Checking frontend connectivity...');
-      const browser = await chromium.launch();
-      const page = await browser.newPage();
-      
-      await page.goto(baseURL, { 
-        waitUntil: 'networkidle',
-        timeout: 30000 
-      });
-      
-      const title = await page.title();
-      console.log(`✅ Frontend is accessible - Title: "${title}"`);
-      
-      await browser.close();
-    } catch (error) {
-      console.log('⚠️  Frontend connectivity check failed, but continuing tests...');
-      console.log(`   Error: ${error.message}`);
-    }
-  } else {
-    console.log('🌐 Skipping frontend check in demo mode');
-  }
-
-  // Create test data if needed
-  try {
-    console.log('🗄️  Preparing test data...');
-    
-    if (isDemoMode) {
-      console.log('📊 Demo mode: Using JSONPlaceholder test data');
-    } else {
-      // Check if we need to seed test data
-      const coachesResponse = await axios.get(`${baseURL}/coaches`, {
-        timeout: 10000,
-        validateStatus: () => true // Accept any status
-      });
-      
-      if (coachesResponse.status === 200 && coachesResponse.data.length === 0) {
-        console.log('📝 Database appears empty, test data may need to be seeded');
-      }
-    }
-    
-  } catch (error) {
-    console.log('ℹ️  Could not check test data, continuing...');
-  }
-
-  console.log('✅ Global setup completed successfully!');
+  console.log('✅ Frontend setup completed!');
   console.log('');
 }
 
