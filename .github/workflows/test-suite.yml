@@ -1,0 +1,449 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+name: 🎾 Tennis Coach Platform - Automated Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test suite to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - api
+          - frontend
+          - integration
+          - accessibility
+          - performance
+      environment:
+        description: 'Environment to test against'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+          - development
+
+env:
+  NODE_VERSION: '18'
+  PLAYWRIGHT_VERSION: '1.40.0'
+
+jobs:
+  setup:
+    name: 🔧 Setup and Validation
+    runs-on: ubuntu-latest
+    outputs:
+      base-url: ${{ steps.get-url.outputs.base-url }}
+      test-suite: ${{ steps.config.outputs.test-suite }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🔍 Determine test configuration
+        id: config
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "test-suite=${{ github.event.inputs.test_suite }}" >> $GITHUB_OUTPUT
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          else
+            echo "test-suite=all" >> $GITHUB_OUTPUT
+            echo "environment=production" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 🌐 Get deployment URL
+        id: get-url
+        run: |
+          # In a real scenario, you would get this from your deployment
+          # For now, we'll use a placeholder that should be replaced
+          if [ "${{ steps.config.outputs.environment }}" = "production" ]; then
+            echo "base-url=${{ secrets.PRODUCTION_BASE_URL }}" >> $GITHUB_OUTPUT
+          elif [ "${{ steps.config.outputs.environment }}" = "staging" ]; then
+            echo "base-url=${{ secrets.STAGING_BASE_URL }}" >> $GITHUB_OUTPUT
+          else
+            echo "base-url=${{ secrets.DEVELOPMENT_BASE_URL }}" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: ✅ Validate configuration
+        run: |
+          echo "Test Suite: ${{ steps.config.outputs.test-suite }}"
+          echo "Environment: ${{ steps.config.outputs.environment }}"
+          echo "Base URL: ${{ steps.get-url.outputs.base-url }}"
+
+  api-tests:
+    name: 🔌 API Layer Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.test-suite == 'all' || needs.setup.outputs.test-suite == 'api'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: tests/package-lock.json
+      
+      - name: 📦 Install dependencies
+        working-directory: tests
+        run: |
+          npm ci
+          npx playwright install chromium
+      
+      - name: 🔧 Configure environment
+        working-directory: tests
+        run: |
+          echo "BASE_URL=${{ needs.setup.outputs.base-url }}" > .env
+          echo "CI=true" >> .env
+          echo "TEST_TIMEOUT=60000" >> .env
+      
+      - name: 🧪 Run API tests
+        working-directory: tests
+        run: npx playwright test e2e/api.spec.ts --reporter=html,json,junit
+      
+      - name: 📊 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-test-results
+          path: |
+            tests/test-results/
+            tests/playwright-report/
+          retention-days: 7
+
+  frontend-tests:
+    name: 🎨 Frontend UI Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.test-suite == 'all' || needs.setup.outputs.test-suite == 'frontend'
+    
+    strategy:
+      matrix:
+        browser: [chromium, firefox, webkit]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: tests/package-lock.json
+      
+      - name: 📦 Install dependencies
+        working-directory: tests
+        run: |
+          npm ci
+          npx playwright install ${{ matrix.browser }}
+      
+      - name: 🔧 Configure environment
+        working-directory: tests
+        run: |
+          echo "BASE_URL=${{ needs.setup.outputs.base-url }}" > .env
+          echo "CI=true" >> .env
+          echo "BROWSER=${{ matrix.browser }}" >> .env
+      
+      - name: 🧪 Run frontend tests
+        working-directory: tests
+        run: npx playwright test e2e/frontend.spec.ts --project=${{ matrix.browser }} --reporter=html,json
+      
+      - name: 📊 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: frontend-test-results-${{ matrix.browser }}
+          path: |
+            tests/test-results/
+            tests/playwright-report/
+          retention-days: 7
+
+  integration-tests:
+    name: 🔗 Integration Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.test-suite == 'all' || needs.setup.outputs.test-suite == 'integration'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: tests/package-lock.json
+      
+      - name: 📦 Install dependencies
+        working-directory: tests
+        run: |
+          npm ci
+          npx playwright install
+      
+      - name: 🔧 Configure environment
+        working-directory: tests
+        run: |
+          echo "BASE_URL=${{ needs.setup.outputs.base-url }}" > .env
+          echo "CI=true" >> .env
+          echo "RUN_INTEGRATION_TESTS=true" >> .env
+      
+      - name: 🧪 Run integration tests
+        working-directory: tests
+        run: npx playwright test e2e/integration.spec.ts --reporter=html,json
+      
+      - name: 📊 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: integration-test-results
+          path: |
+            tests/test-results/
+            tests/playwright-report/
+          retention-days: 7
+
+  accessibility-tests:
+    name: ♿ Accessibility Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.test-suite == 'all' || needs.setup.outputs.test-suite == 'accessibility'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: tests/package-lock.json
+      
+      - name: 📦 Install dependencies
+        working-directory: tests
+        run: |
+          npm ci
+          npx playwright install chromium
+      
+      - name: 🔧 Configure environment
+        working-directory: tests
+        run: |
+          echo "BASE_URL=${{ needs.setup.outputs.base-url }}" > .env
+          echo "CI=true" >> .env
+          echo "RUN_ACCESSIBILITY_TESTS=true" >> .env
+          echo "WCAG_LEVEL=AA" >> .env
+      
+      - name: 🧪 Run accessibility tests
+        working-directory: tests
+        run: npx playwright test e2e/accessibility.spec.ts --reporter=html,json
+      
+      - name: 📊 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: accessibility-test-results
+          path: |
+            tests/test-results/
+            tests/playwright-report/
+          retention-days: 7
+
+  performance-tests:
+    name: ⚡ Performance Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    if: needs.setup.outputs.test-suite == 'all' || needs.setup.outputs.test-suite == 'performance'
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: tests/package-lock.json
+      
+      - name: 📦 Install dependencies
+        working-directory: tests
+        run: |
+          npm ci
+          npx playwright install chromium
+      
+      - name: 🔧 Configure environment
+        working-directory: tests
+        run: |
+          echo "BASE_URL=${{ needs.setup.outputs.base-url }}" > .env
+          echo "CI=true" >> .env
+          echo "RUN_PERFORMANCE_TESTS=true" >> .env
+          echo "MAX_PAGE_LOAD_TIME=5000" >> .env
+          echo "MAX_API_RESPONSE_TIME=3000" >> .env
+      
+      - name: 🧪 Run performance tests
+        working-directory: tests
+        run: npx playwright test e2e/performance.spec.ts --reporter=html,json
+      
+      - name: 📊 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-test-results
+          path: |
+            tests/test-results/
+            tests/playwright-report/
+          retention-days: 7
+
+  test-report:
+    name: 📋 Generate Test Report
+    runs-on: ubuntu-latest
+    needs: [api-tests, frontend-tests, integration-tests, accessibility-tests, performance-tests]
+    if: always()
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 📥 Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: test-artifacts
+      
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: 📊 Combine test results
+        run: |
+          mkdir -p combined-results
+          find test-artifacts -name "*.json" -exec cp {} combined-results/ \;
+          find test-artifacts -name "*.xml" -exec cp {} combined-results/ \;
+      
+      - name: 📈 Generate summary report
+        run: |
+          echo "# 🎾 Tennis Coach Platform - Test Results Summary" > test-summary.md
+          echo "" >> test-summary.md
+          echo "**Test Run:** $(date)" >> test-summary.md
+          echo "**Commit:** ${{ github.sha }}" >> test-summary.md
+          echo "**Branch:** ${{ github.ref_name }}" >> test-summary.md
+          echo "" >> test-summary.md
+          
+          # Add test status for each job
+          echo "## Test Results by Suite" >> test-summary.md
+          echo "" >> test-summary.md
+          
+          if [ "${{ needs.api-tests.result }}" = "success" ]; then
+            echo "- ✅ **API Tests:** Passed" >> test-summary.md
+          elif [ "${{ needs.api-tests.result }}" = "failure" ]; then
+            echo "- ❌ **API Tests:** Failed" >> test-summary.md
+          else
+            echo "- ⏭️ **API Tests:** Skipped" >> test-summary.md
+          fi
+          
+          if [ "${{ needs.frontend-tests.result }}" = "success" ]; then
+            echo "- ✅ **Frontend Tests:** Passed" >> test-summary.md
+          elif [ "${{ needs.frontend-tests.result }}" = "failure" ]; then
+            echo "- ❌ **Frontend Tests:** Failed" >> test-summary.md
+          else
+            echo "- ⏭️ **Frontend Tests:** Skipped" >> test-summary.md
+          fi
+          
+          if [ "${{ needs.integration-tests.result }}" = "success" ]; then
+            echo "- ✅ **Integration Tests:** Passed" >> test-summary.md
+          elif [ "${{ needs.integration-tests.result }}" = "failure" ]; then
+            echo "- ❌ **Integration Tests:** Failed" >> test-summary.md
+          else
+            echo "- ⏭️ **Integration Tests:** Skipped" >> test-summary.md
+          fi
+          
+          if [ "${{ needs.accessibility-tests.result }}" = "success" ]; then
+            echo "- ✅ **Accessibility Tests:** Passed" >> test-summary.md
+          elif [ "${{ needs.accessibility-tests.result }}" = "failure" ]; then
+            echo "- ❌ **Accessibility Tests:** Failed" >> test-summary.md
+          else
+            echo "- ⏭️ **Accessibility Tests:** Skipped" >> test-summary.md
+          fi
+          
+          if [ "${{ needs.performance-tests.result }}" = "success" ]; then
+            echo "- ✅ **Performance Tests:** Passed" >> test-summary.md
+          elif [ "${{ needs.performance-tests.result }}" = "failure" ]; then
+            echo "- ❌ **Performance Tests:** Failed" >> test-summary.md
+          else
+            echo "- ⏭️ **Performance Tests:** Skipped" >> test-summary.md
+          fi
+          
+          echo "" >> test-summary.md
+          echo "## 📊 Detailed Reports" >> test-summary.md
+          echo "" >> test-summary.md
+          echo "Detailed test reports and artifacts are available in the workflow artifacts." >> test-summary.md
+      
+      - name: 📤 Upload combined results
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-test-results
+          path: |
+            combined-results/
+            test-summary.md
+          retention-days: 30
+      
+      - name: 💬 Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('test-summary.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: summary
+            });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
