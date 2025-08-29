@@ -47,9 +47,29 @@ check_requirements() {
     fi
     
     # Check AWS credentials
-    if ! aws sts get-caller-identity &> /dev/null; then
-        print_error "AWS credentials not configured. Please run 'aws configure' first."
+    print_status "Verifying AWS credentials..."
+    
+    # Try to get caller identity and capture both output and error
+    aws_check_output=$(aws sts get-caller-identity 2>&1)
+    aws_check_exit_code=$?
+    
+    if [ $aws_check_exit_code -ne 0 ]; then
+        print_error "AWS credentials verification failed:"
+        echo "  $aws_check_output"
+        echo ""
+        print_error "Please ensure your AWS credentials are properly configured."
+        echo ""
+        echo "Options to fix this:"
+        echo "1. Run 'aws configure' to set up credentials"
+        echo "2. Set environment variables: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY"
+        echo "3. Use AWS SSO: 'aws sso login'"
+        echo "4. Use IAM roles if running on EC2"
+        echo ""
         exit 1
+    else
+        print_success "AWS credentials verified successfully!"
+        echo "  Account: $(echo "$aws_check_output" | grep -o '"Account": "[^"]*"' | cut -d'"' -f4)"
+        echo "  User/Role: $(echo "$aws_check_output" | grep -o '"Arn": "[^"]*"' | cut -d'"' -f4)"
     fi
     
     print_success "All requirements met!"
