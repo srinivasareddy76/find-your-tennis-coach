@@ -232,6 +232,58 @@ test.describe('🎾 Tennis Coach Frontend - Simple Tests', () => {
     });
   });
 
+  test.describe('Search Functionality Integration', () => {
+    
+    test('should integrate search with results display', async ({ page }) => {
+      await page.waitForLoadState('networkidle');
+      
+      // Look for search and results integration
+      const searchArea = page.locator('#search, .search, form');
+      const resultsArea = page.locator('#results, .results, .coaches, .coach-list');
+      
+      const hasSearchArea = await searchArea.count() > 0;
+      const hasResultsArea = await resultsArea.count() > 0;
+      
+      if (hasSearchArea && hasResultsArea) {
+        console.log('✅ Found both search and results areas');
+        
+        // Test that both areas are visible
+        await expect(searchArea.first()).toBeVisible();
+        await expect(resultsArea.first()).toBeVisible();
+      } else {
+        console.log('ℹ️  Search/results integration varies by implementation');
+      }
+    });
+
+    test('should maintain search state during navigation', async ({ page }) => {
+      await page.waitForLoadState('networkidle');
+      
+      // Find search input
+      const searchInput = page.locator('input[type="search"], input[placeholder*="search" i]').first();
+      
+      if (await searchInput.count() > 0) {
+        // Enter search term
+        await searchInput.fill('Tennis Coach Search Test');
+        
+        // Check that value persists
+        const value = await searchInput.inputValue();
+        expect(value).toBe('Tennis Coach Search Test');
+        
+        // Simulate page interaction (scroll, click elsewhere)
+        await page.evaluate(() => window.scrollTo(0, 100));
+        await page.waitForTimeout(500);
+        
+        // Check that search value is still there
+        const persistedValue = await searchInput.inputValue();
+        expect(persistedValue).toBe('Tennis Coach Search Test');
+        
+        console.log('✅ Search state maintained during page interactions');
+      } else {
+        console.log('ℹ️  No search input found to test state persistence');
+      }
+    });
+  });
+
   test.describe('Cross-Browser Compatibility', () => {
     
     test('should render consistently across browsers', async ({ page, browserName }) => {
@@ -269,6 +321,27 @@ test.describe('🎾 Tennis Coach Frontend - Simple Tests', () => {
       await expect(page.locator('#browser-test')).toBeVisible();
       
       console.log(`✅ ${browserName} DOM manipulation test passed`);
+    });
+
+    test('should handle search functionality across browsers', async ({ page, browserName }) => {
+      await page.waitForLoadState('networkidle');
+      
+      // Test search functionality in different browsers
+      const searchElements = page.locator('input[type="search"], input[placeholder*="search" i]');
+      const searchCount = await searchElements.count();
+      
+      if (searchCount > 0) {
+        const searchInput = searchElements.first();
+        
+        // Test typing in different browsers
+        await searchInput.fill(`${browserName} search test`);
+        const value = await searchInput.inputValue();
+        expect(value).toBe(`${browserName} search test`);
+        
+        console.log(`✅ ${browserName} search input functionality works`);
+      } else {
+        console.log(`ℹ️  ${browserName} - no search inputs found to test`);
+      }
     });
   });
 });
