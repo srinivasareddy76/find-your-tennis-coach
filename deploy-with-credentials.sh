@@ -83,7 +83,7 @@ print_success "Lambda packages created"
 echo ""
 print_header "Step 2: Initialize Terraform"
 
-# Initialize Terraform with simplified configuration
+# Initialize Terraform
 print_info "Initializing Terraform..."
 terraform init -reconfigure > /dev/null 2>&1
 print_success "Terraform initialized"
@@ -92,11 +92,11 @@ echo ""
 print_header "Step 3: Plan Deployment"
 
 print_info "Planning deployment..."
-if terraform plan -var="aws_region=$AWS_DEFAULT_REGION" -input=false -out=tfplan > /dev/null 2>&1; then
+if terraform plan -var-file="terraform.tfvars" -input=false -out=tfplan > /dev/null 2>&1; then
     print_success "Deployment plan created successfully"
 else
     print_error "Failed to create deployment plan"
-    terraform plan -var="aws_region=$AWS_DEFAULT_REGION" -input=false
+    terraform plan -var-file="terraform.tfvars" -input=false
     exit 1
 fi
 
