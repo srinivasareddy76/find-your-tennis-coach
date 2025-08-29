@@ -1,0 +1,16 @@
+
+<svg width="150" height="30" viewBox="0 0 150 30" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="starGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFA000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 5 Stars -->
+  <polygon points="15,5 17,11 23,11 18,15 20,21 15,17 10,21 12,15 7,11 13,11" fill="url(#starGradient)"/>
+  <polygon points="45,5 47,11 53,11 48,15 50,21 45,17 40,21 42,15 37,11 43,11" fill="url(#starGradient)"/>
+  <polygon points="75,5 77,11 83,11 78,15 80,21 75,17 70,21 72,15 67,11 73,11" fill="url(#starGradient)"/>
+  <polygon points="105,5 107,11 113,11 108,15 110,21 105,17 100,21 102,15 97,11 103,11" fill="url(#starGradient)"/>
+  <polygon points="135,5 137,11 143,11 138,15 140,21 135,17 130,21 132,15 127,11 133,11" fill="url(#starGradient)"/>
+</svg>

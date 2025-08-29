@@ -1,0 +1,41 @@
+
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="ballGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFE135;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFC107;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="racketGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A0522D;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Tennis Racket -->
+  <ellipse cx="100" cy="80" rx="45" ry="60" fill="none" stroke="url(#racketGradient)" stroke-width="8"/>
+  
+  <!-- Racket Strings -->
+  <g stroke="#333" stroke-width="1" opacity="0.7">
+    <line x1="70" y1="50" x2="130" y2="50"/>
+    <line x1="70" y1="65" x2="130" y2="65"/>
+    <line x1="70" y1="80" x2="130" y2="80"/>
+    <line x1="70" y1="95" x2="130" y2="95"/>
+    <line x1="70" y1="110" x2="130" y2="110"/>
+    
+    <line x1="85" y1="35" x2="85" y2="125"/>
+    <line x1="100" y1="30" x2="100" y2="130"/>
+    <line x1="115" y1="35" x2="115" y2="125"/>
+  </g>
+  
+  <!-- Racket Handle -->
+  <rect x="95" y="140" width="10" height="40" fill="url(#racketGradient)" rx="5"/>
+  <rect x="92" y="175" width="16" height="8" fill="#654321" rx="4"/>
+  
+  <!-- Tennis Ball -->
+  <circle cx="150" cy="50" r="20" fill="url(#ballGradient)"/>
+  <path d="M 135 45 Q 150 35 165 45" stroke="white" stroke-width="2" fill="none"/>
+  <path d="M 135 55 Q 150 65 165 55" stroke="white" stroke-width="2" fill="none"/>
+  
+  <!-- Text -->
+  <text x="100" y="25" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#333">TENNIS</text>
+</svg>

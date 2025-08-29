@@ -1,0 +1,31 @@
+
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="trophyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#FFA000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8F00;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Trophy Base -->
+  <rect x="40" y="85" width="40" height="15" fill="url(#trophyGradient)" rx="3"/>
+  <rect x="35" y="95" width="50" height="8" fill="#B8860B" rx="4"/>
+  
+  <!-- Trophy Stem -->
+  <rect x="55" y="70" width="10" height="20" fill="url(#trophyGradient)"/>
+  
+  <!-- Trophy Cup -->
+  <path d="M 45 70 L 45 40 Q 45 30 60 30 Q 75 30 75 40 L 75 70 Z" fill="url(#trophyGradient)"/>
+  
+  <!-- Trophy Handles -->
+  <ellipse cx="35" cy="50" rx="8" ry="12" fill="none" stroke="url(#trophyGradient)" stroke-width="4"/>
+  <ellipse cx="85" cy="50" rx="8" ry="12" fill="none" stroke="url(#trophyGradient)" stroke-width="4"/>
+  
+  <!-- Trophy Details -->
+  <rect x="50" y="45" width="20" height="3" fill="#B8860B" rx="1"/>
+  <rect x="52" y="52" width="16" height="2" fill="#B8860B" rx="1"/>
+  
+  <!-- Star on top -->
+  <polygon points="60,25 62,31 68,31 63,35 65,41 60,37 55,41 57,35 52,31 58,31" fill="#FFD700"/>
+</svg>

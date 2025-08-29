@@ -1,0 +1,22 @@
+
+{
+  "name": "find-your-tennis-coach-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Find Your Tennis Coach website",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.1400.0"
+  },
+  "keywords": [
+    "tennis",
+    "coach",
+    "aws",
+    "lambda",
+    "dynamodb"
+  ],
+  "author": "Find Your Tennis Coach Team",
+  "license": "MIT"
+}

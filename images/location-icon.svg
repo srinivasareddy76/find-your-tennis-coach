@@ -1,0 +1,21 @@
+
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="pinGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B6B;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#EE5A52;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Map Pin -->
+  <path d="M 50 20 C 35 20 25 30 25 45 C 25 65 50 80 50 80 C 50 80 75 65 75 45 C 75 30 65 20 50 20 Z" fill="url(#pinGradient)"/>
+  
+  <!-- Pin Center -->
+  <circle cx="50" cy="45" r="12" fill="white"/>
+  <circle cx="50" cy="45" r="8" fill="url(#pinGradient)"/>
+  
+  <!-- Tennis Ball in center -->
+  <circle cx="50" cy="45" r="6" fill="#FFE135"/>
+  <path d="M 46 42 Q 50 40 54 42" stroke="white" stroke-width="1" fill="none"/>
+  <path d="M 46 48 Q 50 50 54 48" stroke="white" stroke-width="1" fill="none"/>
+</svg>
