@@ -32,7 +32,6 @@ resource "aws_lambda_function" "backend" {
   environment {
     variables = {
       DYNAMODB_TABLE = aws_dynamodb_table.coaches.name
-      AWS_REGION     = var.aws_region
     }
   }
 }
