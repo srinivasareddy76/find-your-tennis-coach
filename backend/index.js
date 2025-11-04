@@ -6,7 +6,7 @@ const dynamodb = new AWS.DynamoDB.DocumentClient({
     region: process.env.AWS_REGION || 'us-east-1'
 });
 
-const tableName = process.env.DYNAMODB_TABLE;
+const tableName = process.env.DYNAMODB_TABLE || 'find-your-tennis-coach-coaches';
 
 // CORS headers
 const corsHeaders = {
@@ -187,13 +187,15 @@ const californiaZipCodes = {
     '91189': 'Pasadena'
 };
 
-// Sample coaches data for initialization - Updated with California locations and zip codes
+// Sample coaches data for initialization - Enhanced with counties, skill levels, and weekend/holiday availability
 const sampleCoaches = [
     {
         coach_id: '1',
         name: 'Sarah Johnson',
         specialty: 'Beginner & Intermediate',
+        skill_levels: ['Beginner', 'Intermediate'],
         location: 'Beverly Hills, CA',
+        county: 'Los Angeles',
         zip_code: '90210',
         rating: 5,
         experience: '8 years',
@@ -202,13 +204,17 @@ const sampleCoaches = [
         bio: 'Passionate tennis coach with 8 years of experience helping beginners and intermediate players improve their game.',
         hourly_rate: 75,
         availability: ['Monday', 'Wednesday', 'Friday', 'Saturday'],
+        weekend_available: true,
+        holiday_available: true,
         certifications: ['USPTA Certified', 'CPR Certified']
     },
     {
         coach_id: '2',
         name: 'Mike Rodriguez',
         specialty: 'Advanced & Competition',
+        skill_levels: ['Advanced'],
         location: 'Hollywood, CA',
+        county: 'Los Angeles',
         zip_code: '90028',
         rating: 5,
         experience: '12 years',
@@ -217,13 +223,17 @@ const sampleCoaches = [
         bio: 'Former professional player turned coach, specializing in competitive tennis and advanced techniques.',
         hourly_rate: 120,
         availability: ['Tuesday', 'Thursday', 'Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: false,
         certifications: ['PTR Professional', 'USPTA Master Professional']
     },
     {
         coach_id: '3',
         name: 'Emily Chen',
         specialty: 'Youth & Junior Development',
+        skill_levels: ['Beginner', 'Intermediate'],
         location: 'San Francisco, CA',
+        county: 'San Francisco',
         zip_code: '94102',
         rating: 5,
         experience: '6 years',
@@ -232,13 +242,17 @@ const sampleCoaches = [
         bio: 'Specialized in youth development with a focus on building strong fundamentals and love for the game.',
         hourly_rate: 60,
         availability: ['Monday', 'Tuesday', 'Thursday', 'Saturday'],
+        weekend_available: true,
+        holiday_available: true,
         certifications: ['USPTA Certified', 'Youth Development Specialist']
     },
     {
         coach_id: '4',
         name: 'David Thompson',
         specialty: 'Adult Beginner Specialist',
+        skill_levels: ['Beginner'],
         location: 'Palo Alto, CA',
+        county: 'Santa Clara',
         zip_code: '94301',
         rating: 5,
         experience: '10 years',
@@ -247,13 +261,17 @@ const sampleCoaches = [
         bio: 'Patient and encouraging coach who helps adult beginners overcome their fears and enjoy tennis.',
         hourly_rate: 80,
         availability: ['Wednesday', 'Friday', 'Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: true,
         certifications: ['USPTA Certified', 'Adult Learning Specialist']
     },
     {
         coach_id: '5',
         name: 'Lisa Park',
         specialty: 'Women\'s Tennis & Fitness',
+        skill_levels: ['Beginner', 'Intermediate'],
         location: 'Irvine, CA',
+        county: 'Orange',
         zip_code: '92602',
         rating: 5,
         experience: '7 years',
@@ -262,13 +280,17 @@ const sampleCoaches = [
         bio: 'Combines tennis coaching with fitness training to help women achieve their health and tennis goals.',
         hourly_rate: 85,
         availability: ['Monday', 'Wednesday', 'Friday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: false,
         certifications: ['USPTA Certified', 'Fitness Trainer Certified']
     },
     {
         coach_id: '6',
         name: 'Carlos Martinez',
         specialty: 'Clay Court Specialist',
+        skill_levels: ['Intermediate', 'Advanced'],
         location: 'San Diego, CA',
+        county: 'San Diego',
         zip_code: '92101',
         rating: 5,
         experience: '15 years',
@@ -277,13 +299,17 @@ const sampleCoaches = [
         bio: 'European-trained coach specializing in clay court techniques and strategic play.',
         hourly_rate: 100,
         availability: ['Tuesday', 'Thursday', 'Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: true,
         certifications: ['RPT Certified', 'European Tennis Academy Graduate']
     },
     {
         coach_id: '7',
         name: 'Jennifer Wilson',
         specialty: 'Beginner & Fitness',
+        skill_levels: ['Beginner'],
         location: 'Santa Barbara, CA',
+        county: 'Santa Barbara',
         zip_code: '93101',
         rating: 5,
         experience: '5 years',
@@ -292,13 +318,17 @@ const sampleCoaches = [
         bio: 'Enthusiastic coach who combines tennis instruction with fitness training for a complete workout experience.',
         hourly_rate: 70,
         availability: ['Monday', 'Tuesday', 'Friday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: true,
         certifications: ['USPTA Certified', 'Personal Trainer Certified']
     },
     {
         coach_id: '8',
         name: 'Robert Kim',
         specialty: 'Advanced & Strategy',
+        skill_levels: ['Advanced'],
         location: 'Cupertino, CA',
+        county: 'Santa Clara',
         zip_code: '95014',
         rating: 5,
         experience: '11 years',
@@ -307,13 +337,17 @@ const sampleCoaches = [
         bio: 'Strategic tennis coach focusing on advanced techniques and mental game development.',
         hourly_rate: 110,
         availability: ['Wednesday', 'Thursday', 'Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: false,
         certifications: ['PTR Professional', 'Mental Performance Coach']
     },
     {
         coach_id: '9',
         name: 'Amanda Davis',
         specialty: 'Intermediate & Doubles',
+        skill_levels: ['Intermediate'],
         location: 'Newport Beach, CA',
+        county: 'Orange',
         zip_code: '92660',
         rating: 5,
         experience: '9 years',
@@ -322,13 +356,17 @@ const sampleCoaches = [
         bio: 'Doubles specialist with extensive experience in intermediate player development and team strategies.',
         hourly_rate: 90,
         availability: ['Monday', 'Wednesday', 'Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: true,
         certifications: ['USPTA Certified', 'Doubles Strategy Specialist']
     },
     {
         coach_id: '10',
         name: 'James Garcia',
         specialty: 'Youth & Competition',
+        skill_levels: ['Beginner', 'Intermediate', 'Advanced'],
         location: 'Pasadena, CA',
+        county: 'Los Angeles',
         zip_code: '91101',
         rating: 5,
         experience: '13 years',
@@ -337,7 +375,104 @@ const sampleCoaches = [
         bio: 'Youth development expert with a track record of preparing junior players for competitive tournaments.',
         hourly_rate: 95,
         availability: ['Tuesday', 'Thursday', 'Friday', 'Saturday'],
+        weekend_available: true,
+        holiday_available: true,
         certifications: ['USPTA Master Professional', 'Junior Development Specialist']
+    },
+    {
+        coach_id: '11',
+        name: 'Maria Gonzalez',
+        specialty: 'All Levels Instructor',
+        skill_levels: ['Beginner', 'Intermediate', 'Advanced'],
+        location: 'Sacramento, CA',
+        county: 'Sacramento',
+        zip_code: '95814',
+        rating: 5,
+        experience: '9 years',
+        email: 'maria.gonzalez@email.com',
+        phone: '+1-555-0111',
+        bio: 'Versatile coach experienced in teaching all skill levels with personalized training approaches.',
+        hourly_rate: 85,
+        availability: ['Monday', 'Wednesday', 'Friday', 'Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: true,
+        certifications: ['USPTA Certified', 'Multi-Level Training Specialist']
+    },
+    {
+        coach_id: '12',
+        name: 'Kevin Wong',
+        specialty: 'Advanced Competition Coach',
+        skill_levels: ['Advanced'],
+        location: 'Oakland, CA',
+        county: 'Alameda',
+        zip_code: '94601',
+        rating: 5,
+        experience: '14 years',
+        email: 'kevin.wong@email.com',
+        phone: '+1-555-0112',
+        bio: 'Former collegiate player specializing in tournament preparation and advanced competitive strategies.',
+        hourly_rate: 115,
+        availability: ['Tuesday', 'Thursday', 'Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: false,
+        certifications: ['PTR Professional', 'Tournament Preparation Specialist']
+    },
+    {
+        coach_id: '13',
+        name: 'Rachel Thompson',
+        specialty: 'Beginner & Youth Coach',
+        skill_levels: ['Beginner'],
+        location: 'Ventura, CA',
+        county: 'Ventura',
+        zip_code: '93001',
+        rating: 5,
+        experience: '6 years',
+        email: 'rachel.thompson@email.com',
+        phone: '+1-555-0113',
+        bio: 'Specializes in introducing tennis to children and adult beginners with fun, engaging methods.',
+        hourly_rate: 65,
+        availability: ['Monday', 'Wednesday', 'Friday', 'Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: true,
+        certifications: ['USPTA Certified', 'Youth Tennis Development']
+    },
+    {
+        coach_id: '14',
+        name: 'Alex Rivera',
+        specialty: 'Intermediate Skills Development',
+        skill_levels: ['Intermediate'],
+        location: 'Concord, CA',
+        county: 'Contra Costa',
+        zip_code: '94520',
+        rating: 5,
+        experience: '8 years',
+        email: 'alex.rivera@email.com',
+        phone: '+1-555-0114',
+        bio: 'Focuses on helping intermediate players break through plateaus and advance their game.',
+        hourly_rate: 90,
+        availability: ['Tuesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: true,
+        certifications: ['USPTA Certified', 'Intermediate Development Specialist']
+    },
+    {
+        coach_id: '15',
+        name: 'Sophie Martinez',
+        specialty: 'Weekend & Holiday Specialist',
+        skill_levels: ['Beginner', 'Intermediate'],
+        location: 'San Luis Obispo, CA',
+        county: 'San Luis Obispo',
+        zip_code: '93401',
+        rating: 5,
+        experience: '7 years',
+        email: 'sophie.martinez@email.com',
+        phone: '+1-555-0115',
+        bio: 'Dedicated to providing flexible coaching schedules for busy professionals and families.',
+        hourly_rate: 80,
+        availability: ['Saturday', 'Sunday'],
+        weekend_available: true,
+        holiday_available: true,
+        certifications: ['USPTA Certified', 'Flexible Scheduling Specialist']
     }
 ];
 
@@ -366,6 +501,8 @@ exports.handler = async (event) => {
                     return await getCoaches(queryStringParameters);
                 } else if (path === '/zip-codes' || path === '/prod/zip-codes') {
                     return await getZipCodes();
+                } else if (path === '/counties' || path === '/prod/counties') {
+                    return await getCounties();
                 } else if (pathParameters && pathParameters.id) {
                     return await getCoachById(pathParameters.id);
                 }
@@ -406,6 +543,9 @@ exports.handler = async (event) => {
     }
 };
 
+// In-memory storage for testing when DynamoDB is not available
+let inMemoryCoaches = null;
+
 async function initializeSampleData() {
     try {
         // Check if table has data
@@ -428,8 +568,9 @@ async function initializeSampleData() {
             console.log('Sample data initialized successfully');
         }
     } catch (error) {
-        console.error('Error initializing sample data:', error);
-        // Don't throw error, just log it
+        console.error('Error initializing sample data (using in-memory storage):', error.message);
+        // Use in-memory storage for testing
+        inMemoryCoaches = [...sampleCoaches];
     }
 }
 
@@ -446,15 +587,36 @@ async function getZipCodes() {
     }
 }
 
+async function getCounties() {
+    try {
+        // California counties list
+        const californiaCountiesList = [
+            'Los Angeles', 'Orange', 'San Francisco', 'Santa Clara', 'San Diego',
+            'Sacramento', 'Santa Barbara', 'Ventura', 'San Luis Obispo',
+            'Alameda', 'Contra Costa'
+        ];
+        
+        return {
+            statusCode: 200,
+            headers: corsHeaders,
+            body: JSON.stringify(californiaCountiesList.sort())
+        };
+    } catch (error) {
+        console.error('Error getting counties:', error);
+        throw error;
+    }
+}
+
 async function getCoaches(queryParams) {
     try {
         let params = {
             TableName: tableName
         };
         
-        // Check if search is by zip code or location
+        // Check if search is by zip code, location, or county
         let searchLocation = null;
         let searchZipCode = null;
+        let searchCounty = null;
         
         if (queryParams && queryParams.location) {
             const searchTerm = queryParams.location.trim();
@@ -471,15 +633,21 @@ async function getCoaches(queryParams) {
             }
         }
         
+        // Check for county search
+        if (queryParams && queryParams.county) {
+            searchCounty = queryParams.county.trim();
+        }
+        
         // Scan all coaches and filter
         const result = await dynamodb.scan(params).promise();
         let coaches = result.Items;
         
-        // Filter by location or zip code
-        if (searchLocation || searchZipCode) {
+        // Filter by location, zip code, or county
+        if (searchLocation || searchZipCode || searchCounty) {
             coaches = coaches.filter(coach => {
                 let locationMatch = false;
                 let zipMatch = false;
+                let countyMatch = false;
                 
                 // Check location match (city name)
                 if (searchLocation && coach.location) {
@@ -491,13 +659,18 @@ async function getCoaches(queryParams) {
                     zipMatch = coach.zip_code === searchZipCode;
                 }
                 
+                // Check county match
+                if (searchCounty && coach.county) {
+                    countyMatch = coach.county.toLowerCase().includes(searchCounty.toLowerCase());
+                }
+                
                 // If searching by zip code, also check if the city name matches
                 if (searchZipCode && coach.location && californiaZipCodes[searchZipCode]) {
                     const cityFromZip = californiaZipCodes[searchZipCode];
                     locationMatch = coach.location.toLowerCase().includes(cityFromZip.toLowerCase());
                 }
                 
-                return locationMatch || zipMatch;
+                return locationMatch || zipMatch || countyMatch;
             });
         }
         
@@ -508,15 +681,127 @@ async function getCoaches(queryParams) {
             );
         }
         
+        // Filter by skill level if provided
+        if (queryParams && queryParams.skill_level) {
+            const requestedSkillLevel = queryParams.skill_level.toLowerCase();
+            coaches = coaches.filter(coach => 
+                coach.skill_levels && coach.skill_levels.some(level => 
+                    level.toLowerCase() === requestedSkillLevel
+                )
+            );
+        }
+        
+        // Filter by weekend availability if requested
+        if (queryParams && queryParams.weekend_available === 'true') {
+            coaches = coaches.filter(coach => coach.weekend_available === true);
+        }
+        
+        // Filter by holiday availability if requested
+        if (queryParams && queryParams.holiday_available === 'true') {
+            coaches = coaches.filter(coach => coach.holiday_available === true);
+        }
+        
         return {
             statusCode: 200,
             headers: corsHeaders,
             body: JSON.stringify(coaches)
         };
     } catch (error) {
-        console.error('Error getting coaches:', error);
-        throw error;
+        console.error('Error getting coaches (using in-memory storage):', error.message);
+        // Fallback to in-memory storage
+        if (!inMemoryCoaches) {
+            inMemoryCoaches = [...sampleCoaches];
+        }
+        return getCoachesFromMemory(queryParams);
     }
+}
+
+function getCoachesFromMemory(queryParams) {
+    let coaches = [...inMemoryCoaches];
+
+    if (!queryParams || Object.keys(queryParams).length === 0) {
+        return {
+            statusCode: 200,
+            headers: corsHeaders,
+            body: JSON.stringify(coaches)
+        };
+    }
+
+    // Apply filters similar to DynamoDB version
+    if (queryParams.location) {
+        const searchTerm = queryParams.location.trim();
+        let searchLocation = null;
+        let searchZipCode = null;
+        
+        // Check if it's a zip code (5 digits)
+        if (/^\d{5}$/.test(searchTerm)) {
+            searchZipCode = searchTerm;
+            // Convert zip code to city name for location search as well
+            if (californiaZipCodes[searchTerm]) {
+                searchLocation = californiaZipCodes[searchTerm];
+            }
+        } else {
+            searchLocation = searchTerm;
+        }
+        
+        coaches = coaches.filter(coach => {
+            let locationMatch = false;
+            let zipMatch = false;
+            
+            // Check location match (city name)
+            if (searchLocation && coach.location) {
+                locationMatch = coach.location.toLowerCase().includes(searchLocation.toLowerCase());
+            }
+            
+            // Check zip code match
+            if (searchZipCode && coach.zip_code) {
+                zipMatch = coach.zip_code === searchZipCode;
+            }
+            
+            // If searching by zip code, also check if the city name matches
+            if (searchZipCode && coach.location && californiaZipCodes[searchZipCode]) {
+                const cityFromZip = californiaZipCodes[searchZipCode];
+                locationMatch = coach.location.toLowerCase().includes(cityFromZip.toLowerCase());
+            }
+            
+            return locationMatch || zipMatch;
+        });
+    }
+
+    if (queryParams.county) {
+        coaches = coaches.filter(coach => 
+            coach.county && coach.county.toLowerCase().includes(queryParams.county.toLowerCase())
+        );
+    }
+
+    if (queryParams.skill_level) {
+        const requestedSkillLevel = queryParams.skill_level.toLowerCase();
+        coaches = coaches.filter(coach => 
+            coach.skill_levels && coach.skill_levels.some(level => 
+                level.toLowerCase() === requestedSkillLevel
+            )
+        );
+    }
+
+    if (queryParams.specialty) {
+        coaches = coaches.filter(coach => 
+            coach.specialty && coach.specialty.toLowerCase().includes(queryParams.specialty.toLowerCase())
+        );
+    }
+
+    if (queryParams.weekend_available === 'true') {
+        coaches = coaches.filter(coach => coach.weekend_available === true);
+    }
+
+    if (queryParams.holiday_available === 'true') {
+        coaches = coaches.filter(coach => coach.holiday_available === true);
+    }
+
+    return {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: JSON.stringify(coaches)
+    };
 }
 
 async function getCoachById(coachId) {
@@ -558,7 +843,9 @@ async function createCoach(coachData) {
             coach_id: coachId,
             name: coachData.name,
             specialty: coachData.specialty,
+            skill_levels: coachData.skill_levels || [],
             location: coachData.location,
+            county: coachData.county,
             zip_code: coachData.zip_code,
             rating: coachData.rating || 5,
             experience: coachData.experience,
@@ -567,6 +854,8 @@ async function createCoach(coachData) {
             bio: coachData.bio,
             hourly_rate: coachData.hourly_rate,
             availability: coachData.availability || [],
+            weekend_available: coachData.weekend_available || false,
+            holiday_available: coachData.holiday_available || false,
             certifications: coachData.certifications || [],
             created_at: new Date().toISOString()
         };
@@ -614,7 +903,7 @@ async function updateCoach(coachId, updateData) {
         let expressionAttributeValues = {};
         let expressionAttributeNames = {};
         
-        const allowedFields = ['name', 'specialty', 'location', 'zip_code', 'rating', 'experience', 'email', 'phone', 'bio', 'hourly_rate', 'availability', 'certifications'];
+        const allowedFields = ['name', 'specialty', 'skill_levels', 'location', 'county', 'zip_code', 'rating', 'experience', 'email', 'phone', 'bio', 'hourly_rate', 'availability', 'weekend_available', 'holiday_available', 'certifications'];
         
         const updates = [];
         Object.keys(updateData).forEach(key => {
